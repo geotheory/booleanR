@@ -6,7 +6,7 @@ bool_detect = function(x, b, print.call = FALSE){
   b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', '.*')
 
   # single search term
-  if(stri_detect(b, regex = '^[^\\s\\(\\)\\&\\|]+$')){
+  if(!stri_detect(b, regex = '[\\s\\(\\)\\&\\|]')){ # any space or logical char?
     if(print.call) print(b)
     return(eval(parse(text = paste0("str_detect(x, '", b, "')"))))
   }
@@ -41,10 +41,9 @@ bool_detect = function(x, b, print.call = FALSE){
   subs = list()
   i = nchar(b)
   while(i > 0){
-    #cat(i, '\n')
     item = stri_extract_last(b, regex = '\\b[^\\s\\(\\)\\&\\|]+') # whole word not inc logicals
     if(!is.na(item) & item != ''){
-      posn = stri_locate_last(b0, fixed = item)[1,] # position of last search term
+      posn = stri_locate_last(b, fixed = item)[1,] # position of last search term
       orig_item = str_replace_all(item, sep, ' ')
       subs[length(subs)+1] = list(data.frame(start = posn[1], end = posn[2], new_str = paste0("str_detect(x, '", orig_item, "')"), stringsAsFactors = FALSE))
       b = substr(b, 1, posn[1] - 2) # truncate boolean
