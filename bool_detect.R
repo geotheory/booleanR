@@ -45,22 +45,22 @@ bool_detect = function(x, b, print.call = FALSE){
     if(!is.na(item) & item != ''){
       posn = stri_locate_last(b0, fixed = item)[1,] # position of last search term
       orig_item = str_replace_all(item, sep, ' ')
-      subs[length(subs)+1] = list(data.frame(start = posn[1], end = posn[2], new_str = paste0("str_detect(x, '", orig_item, "')"), stringsAsFactors = F))
+      subs[length(subs)+1] = list(data.frame(start = posn[1], end = posn[2], new_str = paste0("str_detect(x, '", orig_item, "')"), stringsAsFactors = FALSE))
       b = substr(b, 1, posn[1] - 2) # truncate boolean
       i = posn[1] - 1
     } else i = i - 1
   }
 
-  subs = subs %>% bind_rows()
-  b = b0
+  subs = subs %>% bind_rows() # to data.frame
 
   # convert terms into own str_detect calls
   for(i in 1:nrow(subs)){
-    b_head = substr(b, 1, subs$start[i]-1)
-    b_tail = substr(b, subs$end[i]+1, nchar(b))
-    b = paste0(b_head, subs$new_str[i], b_tail)
+    b_head = substr(b0, 1, subs$start[i]-1)
+    b_tail = substr(b0, subs$end[i]+1, nchar(b0))
+    b0 = paste0(b_head, subs$new_str[i], b_tail)
   }
-  if(print.call) print(b)
-  b = stri_replace_all(b, regex = '-[ ]*[(]', '!(') # invert logic for negatives
-  eval(parse(text = b)) # evaluate constructed string, maintaining parenthesis logical structure
+
+  b1 = stri_replace_all(b0, regex = '-[ ]*[(]', '!(') # invert logic for negatives
+  if(print.call) print(b1)
+  eval(parse(text = b1)) # evaluate constructed string, maintaining parenthesis logical structure
 }
