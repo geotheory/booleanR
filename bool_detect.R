@@ -3,12 +3,13 @@ require(stringi)
 require(dplyr)
 
 bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FALSE, print_call = FALSE){
-  b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(in_word, '[\\\\w]+', '.*'))
+  b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(in_word, '[\\\\w]*', '.*'))
 
   # single search term
   if(!stri_detect(b, regex = '[\\s\\(\\)\\&\\|]')){ # any space or logical char?
+    b = paste0("str_detect(x, regex('", b, "', ignore_case=", ignore_case, "))")
     if(print_call) print(b)
-    return(eval(parse(text = paste0("str_detect(x, regex('", b, "', ignore_case=", ignore_case, "))"))))
+    return(eval(parse(text = b)))
   }
 
   # convert boolean logical operators to '&' and '|'
