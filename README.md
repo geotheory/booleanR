@@ -6,15 +6,17 @@ Complex boolean string match function for R
 
 - stringr
 - stringi
+- dplyr
 
 ### Arguments
 
-    bool_detect = function(x, b, w = TRUE, s = FALSE, print.call = FALSE){...}
+    bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FALSE, print.call = FALSE){...}
 
 - `x` - a character string or vector of texts to search
 - `b` - a character string boolean search term
-- `w` - Wildcard matching within whole word (FALSE matches across whole document)
-- `s` - [not implemented] Forces wildcard matching against whole words (FALSE allows matching within words)
+- `ignore_case` - ignore case when matching
+- `in_word` - Wildcard matching within whole word (FALSE matches across whole document)
+- `full_word` - [not implemented] Forces wildcard matching against whole words (FALSE allows matching within words)
 - `print.call`  - Print the final command call to console
 
 ### Examples & testing
@@ -39,7 +41,7 @@ bool_detect(x, "fox AND 'lazy dog'"), TRUE,
 bool_detect(x, "('pretty poly' OR bird) OR (quick AND (squirrel OR fox))"), TRUE,
 bool_detect(x, "f?x"), TRUE,
 bool_detect(x, "fo*zy"), FALSE,
-bool_detect(x, "fo*zy", w=F), TRUE,
+bool_detect(x, "fo*zy", in_word=F), TRUE,
 bool_detect(x, "cat OR -(fox)"), FALSE,
 bool_detect(x, "-(bird)"),  TRUE,
 bool_detect(c(x,x,x), 'dog'), TRUE)
