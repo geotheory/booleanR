@@ -15,7 +15,7 @@ Complex boolean string match function for R
 - `x` - a character string or vector of texts to search
 - `b` - a character string boolean search term
 - `ignore_case` - ignore case when matching
-- `in_word` - Wildcard matching within whole word (FALSE matches across whole document)
+- `in_word` - Wildcard matching only within whole word (FALSE matches across whole document)
 - `full_word` - [not implemented] Forces wildcard matching against whole words (FALSE allows matching within words)
 - `print.call`  - Print the final command call to console
 
@@ -40,8 +40,11 @@ bool_detect(x, '"lazy fox"'), FALSE,
 bool_detect(x, "fox AND 'lazy dog'"), TRUE,
 bool_detect(x, "('pretty poly' OR bird) OR (quick AND (squirrel OR fox))"), TRUE,
 bool_detect(x, "f?x"), TRUE,
-bool_detect(x, "fo*zy"), FALSE,
-bool_detect(x, "fo*zy", in_word=F), TRUE,
+bool_detect(x, 'fox*lazy', in_word = F), TRUE,
+bool_detect(x, 'fox*lazy', in_word = T), FALSE,
+bool_detect(x, '"fox * lazy"', in_word = F), TRUE,
+bool_detect(x, '"fox * lazy"', in_word = T), FALSE,
+bool_detect(x, '"fox " AND " lazy"'), TRUE,
 bool_detect(x, "cat OR -(fox)"), FALSE,
 bool_detect(x, "-(bird)"),  TRUE,
 bool_detect(c(x,x,x), 'dog'), TRUE)
