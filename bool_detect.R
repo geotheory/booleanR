@@ -2,13 +2,13 @@ require(stringr)
 require(stringi)
 require(dplyr)
 
-bool_detect = function(x, b, print.call = FALSE){
-  b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', '.*')
+bool_detect = function(x, b, w = TRUE, s = FALSE, print.call = FALSE){
+  b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(w, '[\\\\w]+', '.*'))
 
   # single search term
   if(!stri_detect(b, regex = '[\\s\\(\\)\\&\\|]')){ # any space or logical char?
     if(print.call) print(b)
-    return(eval(parse(text = paste0("str_detect(x, '", b, "')"))))
+    return(eval(parse(text = paste0("stri_detect(x, regex='", b, "')"))))
   }
 
   # convert boolean logical operators to '&' and '|'
@@ -45,7 +45,7 @@ bool_detect = function(x, b, print.call = FALSE){
     if(!is.na(item) & item != ''){
       posn = stri_locate_last(b, fixed = item)[1,] # position of last search term
       orig_item = str_replace_all(item, sep, ' ')
-      subs[length(subs)+1] = list(data.frame(start = posn[1], end = posn[2], new_str = paste0("str_detect(x, '", orig_item, "')"), stringsAsFactors = FALSE))
+      subs[length(subs)+1] = list(data.frame(start = posn[1], end = posn[2], new_str = paste0("stri_detect(x, regex='", orig_item, "')"), stringsAsFactors = FALSE))
       b = substr(b, 1, posn[1] - 2) # truncate boolean
       i = posn[1] - 1
     } else i = i - 1
