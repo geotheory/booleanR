@@ -1,5 +1,6 @@
 require(stringr)
 require(stringi)
+require(dplyr)
 
 bool_detect = function(x, b, print.call = FALSE){
   b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', '.*')
