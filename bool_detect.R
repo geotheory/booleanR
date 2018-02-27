@@ -54,7 +54,7 @@ bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FAL
   }
 
   subs = subs %>% bind_rows() # to data.frame
-
+  print(subs)
   # convert terms into own str_detect calls
   for(i in 1:nrow(subs)){
     b_head = substr(b0, 1, subs$start[i]-1)
