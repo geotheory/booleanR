@@ -43,6 +43,7 @@ bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FAL
   i = nchar(b)
   while(i > 0){
     item = stri_extract_last(b, regex = '\\b[^\\s\\(\\)\\&\\|]+') # whole word not inc logicals
+    #item = stri_extract_last(b, regex = '[^\\s\\(\\)\\&\\|\\-]+') # Jim's modification
     print(item)
     if(!is.na(item) & item != ''){
       posn = stri_locate_last(b, fixed = item)[1,] # position of last search term
