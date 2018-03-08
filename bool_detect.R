@@ -43,6 +43,8 @@ bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FAL
   i = nchar(b)
   while(i > 0){
     item = stri_extract_last(b, regex = '\\b[^\\s\\(\\)\\&\\|]+') # whole word not inc logicals
+    #item = stri_extract_last(b, regex = '[^\\s\\(\\)\\&\\|\\-]+') # Jim's modification
+    print(item)
     if(!is.na(item) & item != ''){
       posn = stri_locate_last(b, fixed = item)[1,] # position of last search term
       orig_item = str_replace_all(item, sep, ' ')
@@ -53,7 +55,7 @@ bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FAL
   }
 
   subs = subs %>% bind_rows() # to data.frame
-
+  print(subs)
   # convert terms into own str_detect calls
   for(i in 1:nrow(subs)){
     b_head = substr(b0, 1, subs$start[i]-1)
