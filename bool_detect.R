@@ -2,8 +2,31 @@ require(stringr)
 require(stringi)
 require(dplyr)
 
-bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FALSE, print_call = FALSE){
-  b = b %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(in_word, '[\\\\w]*', '.*'))
+
+bool_detect = function(x, qry, ignore_case = TRUE, print_call = FALSE){
+  ops = c(AND = '&', `&` = '&', OR = '|', `|` = '|', `(` = '(', `)` = ')')  # boolean operators
+  # add spaces around parentheses;
+  qry = qry %>% str_trim %>% str_replace_all(fixed('('), '( ') %>% str_replace_all(fixed(')'), ' )') %>%
+    str_replace_all("'", '"') %>% # enforce double quotes
+    str_replace_all('(?<="[^ ]{0,100}) (?=[^ ]+")', '\u00A0') # sub spaces in quoted text for a unicode space
+  # split elements by ascii space character
+  comps = str_split(qry, '[ ]+')[[1]] %>% str_replace_all('\u00A0', ' ') %>% str_remove_all('"')
+  comp_ops = comps %in% names(ops)  # identify operators from query terms
+  # construct string for a composite logical call to evaluate
+  to_negate = str_detect(comps[!comp_ops], '^-') # args to negate (NOT)
+  qry_neg = comps[!comp_ops] %>% str_replace('^-', '')
+  # build a str_detect command for each argument, negated as required
+  comps[!comp_ops] = paste0(c('','!')[to_negate+1], 'str_detect(x, regex("',
+                            qry_neg, '", ignore_case=', ignore_case,'))')
+  comps[comp_ops] = ops[comps[comp_ops]]  # convert AND/OR to R logical operators
+  qry_final = paste(comps, collapse = ' ')  # reduce to single string
+  if(print_call) message(qry_final)
+  eval(parse(text = qry_final))
+}
+
+
+bool_detect2 = function(x, qry, ignore_case = TRUE, in_word = TRUE, full_word = FALSE, print_call = FALSE){
+  b = qry %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(in_word, '[\\\\w]*', '.*'))
 
   # single search term
   if(!stri_detect(b, regex = '[\\s\\(\\)\\&\\|]')){ # any space or logical char?
@@ -64,4 +87,25 @@ bool_detect = function(x, b, ignore_case = TRUE, in_word = TRUE, full_word = FAL
   b1 = stri_replace_all(b0, regex = '-[ ]*[(]', '!(') # invert logic for negatives
   if(print_call) print(b1)
   eval(parse(text = b1)) # evaluate constructed string, maintaining parenthesis logical structure
+}
+
+
+bool_filter_db = function(db_tbl, col, qry, print_call=FALSE){
+  ops = c(AND = '&', `&` = '&', OR = '|', `|` = '|', `(` = '(', `)` = ')')  # boolean operators
+  # add spaces around parentheses;
+  qry = qry %>% str_trim %>% str_replace_all(fixed('('), '( ') %>% str_replace_all(fixed(')'), ' )') %>%
+    str_replace_all("'", '"') %>% # enforce double quotes
+    str_replace_all('(?<="[^ ]{0,100}) (?=[^ ]+")', '\u00A0') # sub spaces in quoted text for a unicode space
+  # split elements by ascii space character
+  comps = str_split(qry, '[ ]+')[[1]] %>% str_replace_all('\u00A0', ' ') %>% str_remove_all('"')
+  comp_ops = comps %in% names(ops)  # identify operators from query terms
+  # construct string for a composite logical call to evaluate
+  to_negate = str_detect(comps[!comp_ops], '^-') # args to negate (NOT)
+  qry_neg = comps[!comp_ops] %>% str_replace('^-', '')
+  # build a str_detect command for each argument, negated as required
+  comps[!comp_ops] = paste0(c('','!')[to_negate+1], 'str_detect(', col, ', \'', qry_neg, '\')')
+  comps[comp_ops] = ops[comps[comp_ops]]
+  qry_final = paste0('filter(', deparse(substitute((db_tbl))), ',', paste(comps, collapse = ' '), ')')
+  if(print_call) message(qry_final)
+  eval(parse(text = qry_final))
 }
