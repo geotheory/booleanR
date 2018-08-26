@@ -5,16 +5,16 @@ Complex boolean string match functions for R:
 `bool_detect` is more elegant code and slightly quicker but possibly buggy.
 `bool_detect2` is older and tested, and supports word-wise regex matching.
 
-    bool_detect = function(x, qry, ignore_case = TRUE, print_call = FALSE){...}
+    bool_detect = function(x, qry, ignore_case = TRUE,
+        print_call = FALSE){...}
 
     bool_detect2 = function(x, qry, ignore_case = TRUE, in_word = TRUE,
-        full_word = FALSE, print_call = FALSE){...}
+        print_call = FALSE){...}
 
 - `x` - a character string or vector of texts to search
 - `qry` - a character string boolean search term
 - `ignore_case` - ignore case when matching
 - `in_word` - Wildcard matching only within whole word (FALSE matches across whole document)
-- `full_word` - [not implemented] Forces wildcard matching against whole words (FALSE allows matching within words)
 - `print_call`  - Print the final command call to console
 
 

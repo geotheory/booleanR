@@ -25,7 +25,7 @@ bool_detect = function(x, qry, ignore_case = TRUE, print_call = FALSE){
 }
 
 
-bool_detect2 = function(x, qry, ignore_case = TRUE, in_word = TRUE, full_word = FALSE, print_call = FALSE){
+bool_detect2 = function(x, qry, ignore_case = TRUE, in_word = TRUE, print_call = FALSE){
   b = qry %>% str_trim() %>% stri_replace_all(fixed = '?', '.') %>% stri_replace_all(fixed = '*', ifelse(in_word, '[\\\\w]*', '.*'))
 
   # single search term
